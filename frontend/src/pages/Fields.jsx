@@ -1,166 +1,957 @@
 import { useState } from 'react';
+import Empty from '../components/Empty.jsx';
 import Modal from '../components/Modal.jsx';
-import { useToast } from '../components/Toast.jsx';
+
+// Each field has: name, icon, description, subjects, gradePlan (9,10,11,12), skills, university
+const makeField = (id, name, icon, description, subjects, skills, university, grade9, grade10, grade11, grade12) => ({
+  id, name, icon, description, subjects, skills, university,
+  gradePlan: { 9: grade9, 10: grade10, 11: grade11, 12: grade12 },
+});
 
 const FIELDS = [
-  {
-    id: 1,
-    name: 'Medicine & Health Sciences',
-    icon: '🩺',
-    description: 'Understanding the human body and helping people stay healthy.',
-    subjects: ['Biology', 'Chemistry', 'Mathematics'],
-    skills: ['Attention to detail', 'Empathy', 'Scientific reasoning'],
-    degrees: ['Medicine (MD)', 'Nursing', 'Pharmacy', 'Public Health'],
-    careers: ['Doctor', 'Nurse', 'Pharmacist', 'Researcher'],
-  },
-  {
-    id: 2,
-    name: 'Engineering & Technology',
-    icon: '⚙️',
-    description: 'Designing and building solutions to real-world problems.',
-    subjects: ['Mathematics', 'Physics', 'ICT'],
-    skills: ['Problem solving', 'Logical thinking', 'Creativity'],
-    degrees: ['Civil Engineering', 'Mechanical Engineering', 'Electrical Engineering'],
-    careers: ['Civil Engineer', 'Mechanical Engineer', 'Electrical Engineer'],
-  },
-  {
-    id: 3,
-    name: 'Computer Science & AI',
-    icon: '💻',
-    description: 'Software, algorithms, and intelligent systems.',
-    subjects: ['Mathematics', 'ICT', 'Physics'],
-    skills: ['Programming', 'Algorithms', 'Data analysis'],
-    degrees: ['Computer Science', 'Software Engineering', 'Data Science'],
-    careers: ['Software Engineer', 'Data Scientist', 'AI Engineer'],
-  },
-  {
-    id: 4,
-    name: 'Business & Economics',
-    icon: '📊',
-    description: 'How money, markets, and organizations work.',
-    subjects: ['Mathematics', 'Economics', 'English'],
-    skills: ['Analytical thinking', 'Communication', 'Leadership'],
-    degrees: ['Business Administration', 'Economics', 'Accounting'],
-    careers: ['Entrepreneur', 'Economist', 'Accountant'],
-  },
-  {
-    id: 5,
-    name: 'Natural Sciences & Research',
-    icon: '🔬',
-    description: 'Exploring the physical and natural world through experiments.',
-    subjects: ['Biology', 'Chemistry', 'Physics'],
-    skills: ['Observation', 'Experimentation', 'Data analysis'],
-    degrees: ['Biology', 'Chemistry', 'Physics', 'Environmental Science'],
-    careers: ['Research Scientist', 'Lab Technician', 'Ecologist'],
-  },
-  {
-    id: 6,
-    name: 'Social Sciences & Humanities',
-    icon: '🏛️',
-    description: 'Understanding people, societies, and cultures.',
-    subjects: ['History', 'Geography', 'English'],
-    skills: ['Critical thinking', 'Writing', 'Research'],
-    degrees: ['Psychology', 'Sociology', 'History', 'Law'],
-    careers: ['Lawyer', 'Psychologist', 'Journalist', 'Diplomat'],
-  },
-  {
-    id: 7,
-    name: 'Creative Arts & Design',
-    icon: '🎨',
-    description: 'Expressing ideas through visual, written, and performing arts.',
-    subjects: ['English', 'History', 'ICT'],
-    skills: ['Creativity', 'Visual thinking', 'Storytelling'],
-    degrees: ['Fine Arts', 'Graphic Design', 'Architecture'],
-    careers: ['Graphic Designer', 'Architect', 'Writer', 'Filmmaker'],
-  },
+  makeField(1, 'Medicine', '🩺', 'Diagnose and treat patients in hospitals and clinics.',
+    ['Biology', 'Chemistry', 'Physics'],
+    ['Attention to detail', 'Empathy', 'Communication', 'Scientific thinking'],
+    '5–6 year MD, then 2–4 year residency. Graduate as a licensed physician.',
+    'Build strong Biology and Chemistry basics. Read about the human body.',
+    'Master cell biology, genetics, and organic chemistry.',
+    'Focus on anatomy, physiology, and biochemistry. Prepare for EUEE.',
+    'Score high on EUEE. Apply to medical school. Prepare for entrance interview.'),
+  makeField(2, 'Nursing', '💉', 'Care for patients and support doctors in treatment.',
+    ['Biology', 'Chemistry', 'English'],
+    ['Compassion', 'Patience', 'Communication', 'Physical stamina'],
+    '4-year BSc in Nursing. Optional 2-year MSc for specialization.',
+    'Build biology basics. Volunteer at a clinic if possible.',
+    'Study human anatomy and health sciences.',
+    'Focus on biology, chemistry, and communication skills.',
+    'Apply to nursing programs. Prepare for EUEE and interviews.'),
+  makeField(3, 'Pharmacy', '💊', 'Prepare and dispense medicines and advise patients.',
+    ['Chemistry', 'Biology', 'Mathematics'],
+    ['Accuracy', 'Chemistry knowledge', 'Customer service', 'Business sense'],
+    '5-year BPharm degree, then optional PharmD or MSc.',
+    'Build chemistry basics. Learn about common medicines.',
+    'Master chemical reactions and organic chemistry.',
+    'Deep dive into pharmacology and biochemistry.',
+    'Aim for high chemistry score on EUEE. Apply to pharmacy school.'),
+  makeField(4, 'Dentistry', '🦷', 'Diagnose and treat problems with teeth and gums.',
+    ['Biology', 'Chemistry', 'Physics'],
+    ['Precision', 'Manual dexterity', 'Patience', 'Communication'],
+    '5-year DDS degree, then optional 2-year specialization.',
+    'Build biology and chemistry fundamentals.',
+    'Study human anatomy and dental basics.',
+    'Focus on chemistry and biology for dental school.',
+    'Score high on EUEE. Apply to dental school.'),
+  makeField(5, 'Midwifery', '👶', 'Care for mothers before, during, and after childbirth.',
+    ['Biology', 'Chemistry', 'English'],
+    ['Empathy', 'Calm under pressure', 'Physical stamina'],
+    '4-year BSc in Midwifery.',
+    'Study basic biology and health sciences.',
+    'Focus on human biology and reproduction.',
+    'Strengthen biology and communication skills.',
+    'Apply to midwifery programs after EUEE.'),
+  makeField(6, 'Public Health', '🏥', 'Prevent disease and promote health in communities.',
+    ['Biology', 'Civics', 'Mathematics'],
+    ['Data analysis', 'Communication', 'Community engagement'],
+    '4-year BSc in Public Health, optional MPH.',
+    'Study biology and civics. Volunteer in community health.',
+    'Learn statistics and community health basics.',
+    'Focus on epidemiology and health policy.',
+    'Apply to public health programs.'),
+  makeField(7, 'Veterinary Medicine', '🐾', 'Diagnose and treat animals and livestock.',
+    ['Biology', 'Chemistry', 'Physics'],
+    ['Animal handling', 'Patience', 'Scientific thinking'],
+    '5–6 year DVM degree.',
+    'Study animal biology. Help with farm animals.',
+    'Learn animal anatomy and physiology.',
+    'Focus on animal science and veterinary basics.',
+    'Apply to veterinary school after EUEE.'),
+  makeField(8, 'Physiotherapy', '🦴', 'Help patients recover movement after injury.',
+    ['Biology', 'Physics', 'English'],
+    ['Physical fitness', 'Patience', 'Communication'],
+    '4-year BSc in Physiotherapy.',
+    'Build biology and physics basics.',
+    'Study human anatomy and biomechanics.',
+    'Focus on biology and physical sciences.',
+    'Apply to physiotherapy programs.'),
+  makeField(9, 'Medical Laboratory Science', '🧪', 'Run lab tests to diagnose diseases.',
+    ['Biology', 'Chemistry', 'Mathematics'],
+    ['Attention to detail', 'Lab skills', 'Precision'],
+    '4-year BSc in Medical Lab Science.',
+    'Build chemistry and biology basics.',
+    'Learn lab techniques and microscopy.',
+    'Focus on microbiology and biochemistry.',
+    'Apply to medical lab programs.'),
+  makeField(10, 'Radiology', '📻', 'Use X-rays and imaging to see inside the body.',
+    ['Physics', 'Biology', 'Mathematics'],
+    ['Technical skills', 'Attention to detail', 'Patient care'],
+    '4-year BSc in Radiology/Imaging, or MD + radiology residency.',
+    'Build physics and biology basics.',
+    'Study imaging principles and anatomy.',
+    'Focus on physics and biology.',
+    'Apply to radiology or medical imaging programs.'),
+  makeField(11, 'Optometry', '👁️', 'Test eyesight and prescribe corrective lenses.',
+    ['Biology', 'Physics', 'Chemistry'],
+    ['Precision', 'Patient care', 'Technical skills'],
+    '4-year OD (Doctor of Optometry) degree.',
+    'Build biology and physics basics.',
+    'Study the eye and visual system.',
+    'Focus on optics and eye anatomy.',
+    'Apply to optometry programs.'),
+  makeField(12, 'Anesthesia', '💤', 'Manage pain and sedation during surgery.',
+    ['Biology', 'Chemistry', 'Physics'],
+    ['Calm under pressure', 'Precision', 'Quick decision making'],
+    'Nursing + 2-year anesthesia specialization, or MD + residency.',
+    'Build strong science foundations.',
+    'Study human biology and chemistry.',
+    'Focus on biology and pharmacology.',
+    'Apply to nursing or medical school, then anesthesia.'),
+  makeField(13, 'Surgery', '🔪', 'Perform operations to treat injuries and diseases.',
+    ['Biology', 'Chemistry', 'Physics'],
+    ['Precision', 'Steady hands', 'Stamina', 'Quick decisions'],
+    'MD (5-6 years) + 5-year surgical residency.',
+    'Build biology and chemistry basics. Read about anatomy.',
+    'Study human anatomy and physiology deeply.',
+    'Focus on biology and chemistry.',
+    'Score top marks in EUEE. Enter medical school.'),
+  makeField(14, 'Pediatrics', '🧒', 'Provide medical care for infants and children.',
+    ['Biology', 'Chemistry', 'English'],
+    ['Patience', 'Empathy', 'Communication with kids'],
+    'MD + 3-year pediatrics residency.',
+    'Build biology basics. Volunteer with children.',
+    'Study human development and biology.',
+    'Focus on biology and human sciences.',
+    'Apply to medical school, then pediatrics.'),
+  makeField(15, 'Psychiatry', '🧠', 'Treat mental health conditions.',
+    ['Biology', 'Civics', 'English'],
+    ['Empathy', 'Communication', 'Listening', 'Patience'],
+    'MD + 4-year psychiatry residency.',
+    'Build biology and psychology basics.',
+    'Study human behavior and biology.',
+    'Focus on biology and social sciences.',
+    'Apply to medical school, then psychiatry.'),
+
+  makeField(16, 'Civil Engineering', '🏗️', 'Design and build roads, bridges, and buildings.',
+    ['Mathematics', 'Physics', 'Chemistry'],
+    ['Structural thinking', 'Math', 'Project management'],
+    '5-year BSc in Civil Engineering.',
+    'Master algebra and geometry. Build models with LEGO or paper.',
+    'Study mechanics, forces, and structures.',
+    'Focus on calculus, physics, and materials.',
+    'Apply to civil engineering programs.'),
+  makeField(17, 'Mechanical Engineering', '⚙️', 'Design machines, engines, and mechanical systems.',
+    ['Mathematics', 'Physics', 'Chemistry'],
+    ['Problem solving', 'Physics intuition', 'CAD skills'],
+    '5-year BSc in Mechanical Engineering.',
+    'Build things. Learn how machines work.',
+    'Study mechanics and thermodynamics.',
+    'Focus on calculus, physics, and design.',
+    'Apply to mechanical engineering programs.'),
+  makeField(18, 'Electrical Engineering', '⚡', 'Design electrical systems and power networks.',
+    ['Mathematics', 'Physics', 'Chemistry'],
+    ['Circuit design', 'Math', 'Problem solving'],
+    '5-year BSc in Electrical Engineering.',
+    'Learn basic circuits and electronics.',
+    'Study electricity, magnetism, and circuits.',
+    'Focus on calculus, physics, and electronics.',
+    'Apply to electrical engineering programs.'),
+  makeField(19, 'Software Engineering', '💻', 'Build reliable software systems and applications.',
+    ['Mathematics', 'ICT', 'Physics'],
+    ['Programming', 'Problem solving', 'Teamwork', 'Patience'],
+    '4-year BSc in Software Engineering.',
+    'Learn Python or JavaScript basics.',
+    'Build small projects. Learn Git and web basics.',
+    'Study algorithms, data structures, and databases.',
+    'Apply to software engineering programs.'),
+  makeField(20, 'Computer Science', '🖥️', 'Study algorithms, data, and computing theory.',
+    ['Mathematics', 'ICT', 'Physics'],
+    ['Programming', 'Logic', 'Math', 'Abstraction'],
+    '4-year BSc in Computer Science.',
+    'Learn Python. Solve problems on Codecademy.',
+    'Study data structures and basic algorithms.',
+    'Master algorithms, math, and computing theory.',
+    'Apply to CS programs. Build a portfolio.'),
+  makeField(21, 'Chemical Engineering', '⚗️', 'Design chemical processes and products.',
+    ['Chemistry', 'Mathematics', 'Physics'],
+    ['Chemistry intuition', 'Process thinking', 'Math'],
+    '5-year BSc in Chemical Engineering.',
+    'Build chemistry and math basics.',
+    'Study chemical reactions and thermodynamics.',
+    'Focus on chemistry, math, and physics.',
+    'Apply to chemical engineering programs.'),
+  makeField(22, 'Aerospace Engineering', '✈️', 'Design aircraft and spacecraft.',
+    ['Mathematics', 'Physics', 'Chemistry'],
+    ['Physics intuition', 'Math', 'Precision'],
+    '5-year BSc in Aerospace Engineering.',
+    'Study physics and math deeply. Read about space.',
+    'Learn mechanics, fluids, and materials.',
+    'Focus on calculus, physics, and design.',
+    'Apply to aerospace engineering programs.'),
+  makeField(23, 'Biomedical Engineering', '🦾', 'Design medical devices and prosthetics.',
+    ['Biology', 'Physics', 'Mathematics'],
+    ['Problem solving', 'Biology + engineering', 'Design'],
+    '4-year BSc in Biomedical Engineering.',
+    'Build biology and physics basics.',
+    'Study human biology and mechanics.',
+    'Focus on bio, physics, and design.',
+    'Apply to biomedical engineering programs.'),
+  makeField(24, 'Environmental Engineering', '🌱', 'Solve environmental problems with engineering.',
+    ['Chemistry', 'Biology', 'Mathematics'],
+    ['Systems thinking', 'Chemistry', 'Sustainability focus'],
+    '4-year BSc in Environmental Engineering.',
+    'Learn about ecosystems and pollution.',
+    'Study water, air, and soil science.',
+    'Focus on chemistry, biology, and math.',
+    'Apply to environmental engineering programs.'),
+  makeField(25, 'Mining Engineering', '⛏️', 'Extract minerals from the earth safely.',
+    ['Chemistry', 'Physics', 'Mathematics'],
+    ['Geology knowledge', 'Math', 'Safety focus'],
+    '5-year BSc in Mining Engineering.',
+    'Study geology and rocks.',
+    'Learn about minerals and extraction.',
+    'Focus on chemistry, physics, and math.',
+    'Apply to mining engineering programs.'),
+  makeField(26, 'Petroleum Engineering', '🛢️', 'Extract oil and natural gas from the ground.',
+    ['Chemistry', 'Physics', 'Mathematics'],
+    ['Chemistry', 'Physics', 'Field work stamina'],
+    '5-year BSc in Petroleum Engineering.',
+    'Build chemistry and physics basics.',
+    'Study geology and fluid mechanics.',
+    'Focus on chemistry, physics, and math.',
+    'Apply to petroleum engineering programs.'),
+  makeField(27, 'Agricultural Engineering', '🚜', 'Improve farming with modern technology.',
+    ['Biology', 'Chemistry', 'Mathematics'],
+    ['Biology', 'Engineering', 'Field work'],
+    '4-year BSc in Agricultural Engineering.',
+    'Learn farming basics and biology.',
+    'Study soil, crops, and machinery.',
+    'Focus on biology, chemistry, and math.',
+    'Apply to agricultural engineering programs.'),
+  makeField(28, 'Industrial Engineering', '🏭', 'Optimize factories, systems, and processes.',
+    ['Mathematics', 'Physics', 'Economics'],
+    ['Systems thinking', 'Optimization', 'Math'],
+    '4-year BSc in Industrial Engineering.',
+    'Build math and physics basics.',
+    'Study operations, logistics, and stats.',
+    'Focus on math, stats, and economics.',
+    'Apply to industrial engineering programs.'),
+  makeField(29, 'Marine Engineering', '🚢', 'Design and maintain ships and boats.',
+    ['Mathematics', 'Physics', 'Chemistry'],
+    ['Mechanical skills', 'Physics', 'Sea tolerance'],
+    '5-year BSc in Marine Engineering.',
+    'Build math and physics basics. Read about ships.',
+    'Study mechanics and fluid dynamics.',
+    'Focus on physics, math, and design.',
+    'Apply to marine engineering programs.'),
+  makeField(30, 'Surveying & Geomatics', '📐', 'Measure land and map terrain precisely.',
+    ['Mathematics', 'Geography', 'Physics'],
+    ['Precision', 'Math', 'Map skills'],
+    '4-year BSc in Surveying/Geomatics.',
+    'Learn map skills and basic math.',
+    'Study geography, geometry, and GPS.',
+    'Focus on math, geography, and physics.',
+    'Apply to surveying programs.'),
+  makeField(31, 'Architecture', '🏛️', 'Design buildings and urban spaces.',
+    ['Mathematics', 'Physics', 'Art'],
+    ['Drawing', 'Design thinking', 'Math', 'Creativity'],
+    '5-year BArch degree, then optional MArch.',
+    'Build drawing skills. Sketch buildings.',
+    'Study geometry, physics, and art.',
+    'Focus on design, math, and physics.',
+    'Build a portfolio. Apply to architecture school.'),
+  makeField(32, 'Construction Management', '👷', 'Manage construction projects and teams.',
+    ['Mathematics', 'Physics', 'Economics'],
+    ['Project management', 'Communication', 'Math'],
+    '4-year BSc in Construction Management.',
+    'Learn about building and math.',
+    'Study project management basics.',
+    'Focus on math, economics, and management.',
+    'Apply to construction management programs.'),
+
+  makeField(33, 'Data Science', '📊', 'Analyze data to find useful insights.',
+    ['Mathematics', 'ICT', 'Physics'],
+    ['Python', 'Statistics', 'Data analysis', 'Machine learning'],
+    '4-year BSc in Data Science, CS, or Statistics.',
+    'Learn Python and basic statistics.',
+    'Study data structures and pandas/NumPy.',
+    'Focus on stats, ML, and math.',
+    'Build projects. Apply to data science programs.'),
+  makeField(34, 'Artificial Intelligence', '🤖', 'Build intelligent systems that learn.',
+    ['Mathematics', 'ICT', 'Physics'],
+    ['Python', 'Math', 'Machine learning', 'Deep learning'],
+    '4-year BSc in AI, CS, or Math.',
+    'Learn Python and math fundamentals.',
+    'Study linear algebra and calculus.',
+    'Focus on ML, deep learning, and research.',
+    'Apply to AI programs. Build AI projects.'),
+  makeField(35, 'Cybersecurity', '🔐', 'Protect systems and data from hackers.',
+    ['Mathematics', 'ICT', 'Physics'],
+    ['Networking', 'Linux', 'Problem solving', 'Ethics'],
+    '4-year BSc in Cybersecurity or CS.',
+    'Learn computer basics and networking.',
+    'Study Linux, OS, and security basics.',
+    'Focus on cryptography and ethical hacking.',
+    'Get certified (Security+). Apply to programs.'),
+  makeField(36, 'Information Systems', '🗄️', 'Manage business information technology.',
+    ['Mathematics', 'ICT', 'Economics'],
+    ['Business + tech', 'Databases', 'Communication'],
+    '4-year BSc in Information Systems.',
+    'Learn computer basics.',
+    'Study databases and business basics.',
+    'Focus on systems, SQL, and business.',
+    'Apply to IS programs.'),
+  makeField(37, 'Networking', '🌐', 'Connect and secure computer networks.',
+    ['Mathematics', 'ICT', 'Physics'],
+    ['Networking', 'Troubleshooting', 'Linux'],
+    '4-year BSc in Computer Networks or CS.',
+    'Learn computer basics and internet.',
+    'Study TCP/IP and network basics.',
+    'Focus on routing, switching, security.',
+    'Get Cisco CCNA. Apply to programs.'),
+  makeField(38, 'Web Development', '🌍', 'Build websites and web applications.',
+    ['ICT', 'Mathematics', 'English'],
+    ['HTML/CSS', 'JavaScript', 'React', 'Problem solving'],
+    '4-year BSc in CS or Web Development.',
+    'Learn HTML, CSS, and basic JavaScript.',
+    'Build simple websites and learn React.',
+    'Master full-stack. Build real projects.',
+    'Build a portfolio. Apply to CS programs.'),
+  makeField(39, 'Mobile App Development', '📱', 'Build apps for phones and tablets.',
+    ['ICT', 'Mathematics', 'Physics'],
+    ['Mobile languages (Swift/Kotlin)', 'UI design', 'Problem solving'],
+    '4-year BSc in CS or Mobile Development.',
+    'Learn programming basics (Python or JavaScript).',
+    'Learn mobile UI basics (React Native or Flutter).',
+    'Build real mobile apps. Publish to store.',
+    'Apply to CS programs. Show your portfolio.'),
+  makeField(40, 'Game Development', '🎮', 'Design and build video games.',
+    ['ICT', 'Mathematics', 'Physics'],
+    ['Programming', 'Game design', 'Art basics', 'Math'],
+    '4-year BSc in Game Development or CS.',
+    'Learn Python and simple game logic.',
+    'Learn Unity or Godot. Build 2D games.',
+    'Study game physics and AI.',
+    'Publish a game. Apply to programs.'),
+  makeField(41, 'Cloud Computing', '☁️', 'Manage internet-based computing services.',
+    ['ICT', 'Mathematics', 'Physics'],
+    ['Linux', 'AWS/Azure', 'Networking', 'Automation'],
+    '4-year BSc in CS or Cloud Computing.',
+    'Learn computer and internet basics.',
+    'Study Linux and networking.',
+    'Focus on cloud platforms and DevOps.',
+    'Get AWS/Azure certified. Apply to programs.'),
+  makeField(42, 'Robotics', '🦿', 'Build and program intelligent robots.',
+    ['Mathematics', 'Physics', 'ICT'],
+    ['Programming', 'Electronics', 'Mechanical design'],
+    '4-year BSc in Robotics or Mechatronics.',
+    'Build simple circuits and robots.',
+    'Learn Arduino and Python programming.',
+    'Study AI and control systems.',
+    'Apply to robotics programs. Build projects.'),
+  makeField(43, 'Database Administration', '💾', 'Manage and secure large databases.',
+    ['ICT', 'Mathematics', 'English'],
+    ['SQL', 'Database design', 'Backup strategies'],
+    '4-year BSc in CS or IS.',
+    'Learn basic computing and Excel.',
+    'Study SQL and database fundamentals.',
+    'Focus on performance tuning and security.',
+    'Get certified. Apply to programs.'),
+  makeField(44, 'DevOps Engineering', '🔧', 'Automate software deployment and operations.',
+    ['ICT', 'Mathematics', 'Physics'],
+    ['Linux', 'CI/CD', 'Docker', 'Cloud'],
+    '4-year BSc in CS or IT.',
+    'Learn programming and Linux basics.',
+    'Study version control and basic deployment.',
+    'Master Docker, Kubernetes, and cloud.',
+    'Build automation projects. Apply to programs.'),
+  makeField(45, 'UI/UX Design', '🎨', 'Design user-friendly digital interfaces.',
+    ['ICT', 'Art', 'English'],
+    ['Figma', 'Design thinking', 'User research', 'Prototyping'],
+    '4-year BSc in Design, HCI, or CS.',
+    'Learn drawing and basic design.',
+    'Study color theory and typography.',
+    'Learn Figma and user research.',
+    'Build a design portfolio. Apply to programs.'),
+
+  makeField(46, 'Biology', '🧬', 'Study living organisms and life processes.',
+    ['Biology', 'Chemistry', 'Mathematics'],
+    ['Lab skills', 'Observation', 'Research', 'Writing'],
+    '4-year BSc in Biology, then MSc or PhD for research.',
+    'Build biology basics. Keep a nature journal.',
+    'Study cells, genetics, and ecology.',
+    'Focus on advanced biology and lab work.',
+    'Apply to biology programs. Consider research.'),
+  makeField(47, 'Chemistry', '⚗️', 'Study matter, reactions, and compounds.',
+    ['Chemistry', 'Mathematics', 'Physics'],
+    ['Lab skills', 'Precision', 'Observation', 'Math'],
+    '4-year BSc in Chemistry, then MSc or PhD.',
+    'Build chemistry basics. Do safe home experiments.',
+    'Study organic and inorganic chemistry.',
+    'Focus on advanced chemistry and lab work.',
+    'Apply to chemistry programs. Consider research.'),
+  makeField(48, 'Physics', '🔭', 'Study matter, energy, and forces.',
+    ['Physics', 'Mathematics', 'Chemistry'],
+    ['Math', 'Problem solving', 'Observation', 'Research'],
+    '4-year BSc in Physics, then MSc or PhD.',
+    'Build math and physics basics.',
+    'Study mechanics, waves, and electricity.',
+    'Focus on advanced physics and math.',
+    'Apply to physics programs. Consider research.'),
+  makeField(49, 'Mathematics', '📐', 'Study numbers, structure, and patterns.',
+    ['Mathematics', 'Physics', 'ICT'],
+    ['Abstract thinking', 'Problem solving', 'Proofs'],
+    '4-year BSc in Mathematics, then MSc or PhD.',
+    'Build strong algebra and geometry.',
+    'Study calculus, trigonometry, and stats.',
+    'Focus on advanced calculus and proofs.',
+    'Apply to math programs. Consider research.'),
+  makeField(50, 'Statistics', '📈', 'Analyze data and probability.',
+    ['Mathematics', 'ICT', 'Economics'],
+    ['Statistics', 'R/Python', 'Data analysis'],
+    '4-year BSc in Statistics.',
+    'Build strong math basics.',
+    'Study probability and basic statistics.',
+    'Focus on statistical modeling.',
+    'Apply to statistics programs.'),
+  makeField(51, 'Geology', '🪨', 'Study rocks, minerals, and the Earth.',
+    ['Geography', 'Chemistry', 'Physics'],
+    ['Field work', 'Observation', 'Mapping'],
+    '4-year BSc in Geology.',
+    'Study rocks and collect samples.',
+    'Learn about plate tectonics and minerals.',
+    'Focus on chemistry and field work.',
+    'Apply to geology programs.'),
+  makeField(52, 'Environmental Science', '🌍', 'Protect the natural environment.',
+    ['Biology', 'Chemistry', 'Geography'],
+    ['Research', 'Field work', 'Data analysis'],
+    '4-year BSc in Environmental Science.',
+    'Learn about ecosystems and pollution.',
+    'Study ecology, climate, and conservation.',
+    'Focus on env. chemistry and policy.',
+    'Apply to environmental programs.'),
+  makeField(53, 'Biotechnology', '🧪', 'Use biology to make new products.',
+    ['Biology', 'Chemistry', 'Mathematics'],
+    ['Lab skills', 'Genetics', 'Precision'],
+    '4-year BSc in Biotechnology.',
+    'Build biology and chemistry basics.',
+    'Study genetics and microbiology.',
+    'Focus on molecular biology and lab work.',
+    'Apply to biotech programs.'),
+  makeField(54, 'Microbiology', '🦠', 'Study microscopic organisms.',
+    ['Biology', 'Chemistry', 'Mathematics'],
+    ['Lab skills', 'Observation', 'Precision'],
+    '4-year BSc in Microbiology.',
+    'Build biology basics. Use a microscope.',
+    'Study bacteria, viruses, and fungi.',
+    'Focus on microbiology and immunology.',
+    'Apply to microbiology programs.'),
+  makeField(55, 'Astronomy', '🌌', 'Study stars, planets, and the universe.',
+    ['Physics', 'Mathematics', 'Chemistry'],
+    ['Math', 'Physics', 'Observation', 'Programming'],
+    '4-year BSc in Astronomy or Physics.',
+    'Stargaze. Learn constellations. Read space books.',
+    'Study physics, math, and basic astronomy.',
+    'Focus on astrophysics and math.',
+    'Apply to astronomy programs.'),
+  makeField(56, 'Meteorology', '⛅', 'Study weather and climate patterns.',
+    ['Physics', 'Mathematics', 'Geography'],
+    ['Data analysis', 'Physics', 'Observation'],
+    '4-year BSc in Meteorology.',
+    'Track weather. Learn about climate.',
+    'Study physics and atmospheric science.',
+    'Focus on atmospheric physics.',
+    'Apply to meteorology programs.'),
+  makeField(57, 'Oceanography', '🌊', 'Study oceans and marine environments.',
+    ['Biology', 'Chemistry', 'Geography'],
+    ['Field work', 'Research', 'Data analysis'],
+    '4-year BSc in Oceanography or Marine Science.',
+    'Learn about oceans and marine life.',
+    'Study marine biology and chemistry.',
+    'Focus on ocean physics and chemistry.',
+    'Apply to oceanography programs.'),
+  makeField(58, 'Zoology', '🦁', 'Study animals and wildlife.',
+    ['Biology', 'Chemistry', 'Geography'],
+    ['Field work', 'Observation', 'Research'],
+    '4-year BSc in Zoology.',
+    'Study animals. Keep a wildlife journal.',
+    'Learn animal biology and ecology.',
+    'Focus on advanced zoology.',
+    'Apply to zoology programs.'),
+  makeField(59, 'Botany', '🌿', 'Study plants and ecosystems.',
+    ['Biology', 'Chemistry', 'Geography'],
+    ['Field work', 'Observation', 'Lab skills'],
+    '4-year BSc in Botany.',
+    'Grow plants. Learn plant biology.',
+    'Study plant anatomy and physiology.',
+    'Focus on ecology and plant genetics.',
+    'Apply to botany programs.'),
+  makeField(60, 'Materials Science', '💎', 'Create new materials for technology.',
+    ['Chemistry', 'Physics', 'Mathematics'],
+    ['Chemistry', 'Physics', 'Lab skills'],
+    '4-year BSc in Materials Science.',
+    'Study chemistry and physics basics.',
+    'Learn about materials and their properties.',
+    'Focus on advanced chemistry and physics.',
+    'Apply to materials science programs.'),
+
+  makeField(61, 'Business Administration', '💼', 'Manage organizations and lead teams.',
+    ['Economics', 'Mathematics', 'English'],
+    ['Leadership', 'Communication', 'Strategy'],
+    '4-year BBA, optional MBA.',
+    'Learn about money and business basics.',
+    'Study economics, accounting, and management.',
+    'Focus on business strategy and finance.',
+    'Apply to business programs.'),
+  makeField(62, 'Accounting', '📚', 'Track, audit, and report financial records.',
+    ['Mathematics', 'Economics', 'English'],
+    ['Math', 'Attention to detail', 'Ethics'],
+    '4-year BSc in Accounting. Consider CPA.',
+    'Build math basics. Track a small budget.',
+    'Study accounting principles and Excel.',
+    'Focus on advanced accounting and auditing.',
+    'Apply to accounting programs. Get CPA.'),
+  makeField(63, 'Finance', '💰', 'Manage money, investments, and risk.',
+    ['Mathematics', 'Economics', 'English'],
+    ['Math', 'Analysis', 'Excel', 'Risk thinking'],
+    '4-year BSc in Finance.',
+    'Build math basics. Read about investing.',
+    'Study economics and financial math.',
+    'Focus on investments and risk management.',
+    'Apply to finance programs.'),
+  makeField(64, 'Marketing', '📣', 'Promote products and build brands.',
+    ['English', 'Economics', 'ICT'],
+    ['Communication', 'Creativity', 'Data analysis'],
+    '4-year BSc in Marketing.',
+    'Read ads. Learn what makes them work.',
+    'Study consumer behavior and digital marketing.',
+    'Focus on strategy and analytics.',
+    'Apply to marketing programs.'),
+  makeField(65, 'Entrepreneurship', '🚀', 'Start and grow new businesses.',
+    ['Economics', 'Mathematics', 'English'],
+    ['Leadership', 'Risk-taking', 'Communication'],
+    '4-year BSc in Entrepreneurship or Business.',
+    'Start a small business (lemonade stand, tutoring).',
+    'Study business models and finance.',
+    'Focus on startups and strategy.',
+    'Apply to business programs. Launch projects.'),
+  makeField(66, 'Economics', '📊', 'Study how economies work.',
+    ['Economics', 'Mathematics', 'Geography'],
+    ['Math', 'Analysis', 'Research'],
+    '4-year BSc in Economics. Consider MSc.',
+    'Read about the economy. Build math basics.',
+    'Study micro and macroeconomics.',
+    'Focus on econometrics and policy.',
+    'Apply to economics programs.'),
+  makeField(67, 'Human Resource Management', '👥', 'Manage employees and hiring.',
+    ['Economics', 'Civics', 'English'],
+    ['Communication', 'Empathy', 'Organization'],
+    '4-year BSc in HRM.',
+    'Learn about teamwork and communication.',
+    'Study organizational behavior.',
+    'Focus on HR strategy and labor law.',
+    'Apply to HRM programs.'),
+  makeField(68, 'Supply Chain Management', '🚚', 'Move goods efficiently from factory to customer.',
+    ['Mathematics', 'Economics', 'Geography'],
+    ['Logistics', 'Math', 'Problem solving'],
+    '4-year BSc in Supply Chain Management.',
+    'Learn about trade and transport.',
+    'Study logistics and operations.',
+    'Focus on supply chain strategy.',
+    'Apply to SCM programs.'),
+  makeField(69, 'Banking & Insurance', '🏦', 'Manage savings, loans, and financial risk.',
+    ['Mathematics', 'Economics', 'English'],
+    ['Math', 'Customer service', 'Risk analysis'],
+    '4-year BSc in Banking or Finance.',
+    'Learn about money and saving.',
+    'Study banking operations and insurance.',
+    'Focus on risk management.',
+    'Apply to banking/insurance programs.'),
+  makeField(70, 'International Business', '🌐', 'Trade goods and services across countries.',
+    ['Economics', 'English', 'Geography'],
+    ['Languages', 'Cross-cultural skills', 'Business'],
+    '4-year BSc in International Business.',
+    'Learn about other countries. Study a language.',
+    'Study global trade and economics.',
+    'Focus on international finance and marketing.',
+    'Apply to IB programs. Study abroad if possible.'),
+  makeField(71, 'Project Management', '📋', 'Plan and lead projects to success.',
+    ['Mathematics', 'Economics', 'English'],
+    ['Organization', 'Leadership', 'Communication'],
+    '4-year BSc in Business or PM. Consider PMP.',
+    'Lead small group projects at school.',
+    'Study project management basics.',
+    'Focus on Agile, Scrum, and tools.',
+    'Apply to business programs. Get PMP.'),
+  makeField(72, 'Public Administration', '🏛️', 'Manage government and public services.',
+    ['Civics', 'Economics', 'English'],
+    ['Leadership', 'Policy analysis', 'Communication'],
+    '4-year BSc in Public Administration. Consider MPA.',
+    'Learn civics and government.',
+    'Study public policy and administration.',
+    'Focus on public finance and management.',
+    'Apply to PA programs.'),
+
+  makeField(73, 'Law', '⚖️', 'Defend justice and legal rights.',
+    ['Civics', 'English', 'History'],
+    ['Critical thinking', 'Reading', 'Argumentation', 'Writing'],
+    '4-year LLB, then bar exam.',
+    'Read about law. Practice debate.',
+    'Study civics, history, and logic.',
+    'Focus on legal reasoning and writing.',
+    'Score high on EUEE. Apply to law school.'),
+  makeField(74, 'Political Science', '🗳️', 'Study governments and politics.',
+    ['Civics', 'History', 'English'],
+    ['Analysis', 'Debate', 'Research'],
+    '4-year BA in Political Science.',
+    'Follow current events. Discuss politics.',
+    'Study civics and comparative politics.',
+    'Focus on political theory and policy.',
+    'Apply to political science programs.'),
+  makeField(75, 'International Relations', '🌍', 'Work in diplomacy and foreign affairs.',
+    ['Civics', 'History', 'English'],
+    ['Languages', 'Diplomacy', 'Global awareness'],
+    '4-year BA in IR.',
+    'Learn about other countries.',
+    'Study world history and politics.',
+    'Focus on international law and policy.',
+    'Apply to IR programs. Study abroad.'),
+  makeField(76, 'Sociology', '👨‍👩‍👧', 'Study society and human behavior.',
+    ['Civics', 'History', 'English'],
+    ['Research', 'Empathy', 'Critical thinking'],
+    '4-year BA in Sociology.',
+    'Observe communities. Read about society.',
+    'Study social theory and research methods.',
+    'Focus on social research and policy.',
+    'Apply to sociology programs.'),
+  makeField(77, 'Psychology', '🧠', 'Study the mind and human behavior.',
+    ['Biology', 'Civics', 'English'],
+    ['Empathy', 'Listening', 'Research', 'Analysis'],
+    '4-year BA/BSc in Psychology. Consider MSc.',
+    'Read about the brain and behavior.',
+    'Study psychology basics and stats.',
+    'Focus on clinical or cognitive psych.',
+    'Apply to psychology programs.'),
+  makeField(78, 'History', '📜', 'Study past events and cultures.',
+    ['History', 'Geography', 'English'],
+    ['Reading', 'Research', 'Writing', 'Analysis'],
+    '4-year BA in History.',
+    'Read history books. Visit museums.',
+    'Study world and Ethiopian history.',
+    'Focus on historical research methods.',
+    'Apply to history programs.'),
+  makeField(79, 'Geography', '🗺️', 'Study places, people, and environments.',
+    ['Geography', 'History', 'English'],
+    ['Map skills', 'Field work', 'Analysis'],
+    '4-year BA/BSc in Geography.',
+    'Learn maps. Explore your area.',
+    'Study human and physical geography.',
+    'Focus on GIS and remote sensing.',
+    'Apply to geography programs.'),
+  makeField(80, 'Anthropology', '🗿', 'Study human cultures and evolution.',
+    ['History', 'Biology', 'English'],
+    ['Field work', 'Observation', 'Empathy'],
+    '4-year BA in Anthropology.',
+    'Learn about different cultures.',
+    'Study human evolution and culture.',
+    'Focus on ethnographic research.',
+    'Apply to anthropology programs.'),
+  makeField(81, 'Archaeology', '🏺', 'Dig up and study ancient objects.',
+    ['History', 'Geography', 'English'],
+    ['Field work', 'Patience', 'Research'],
+    '4-year BA in Archaeology.',
+    'Read about ancient civilizations.',
+    'Study history, geology, and field methods.',
+    'Focus on excavation and analysis.',
+    'Apply to archaeology programs.'),
+  makeField(82, 'Social Work', '🤝', 'Help people in need and support communities.',
+    ['Civics', 'Biology', 'English'],
+    ['Empathy', 'Communication', 'Patience'],
+    '4-year BSW. Consider MSW.',
+    'Volunteer. Help people around you.',
+    'Study social welfare and psychology.',
+    'Focus on counseling and case management.',
+    'Apply to social work programs.'),
+  makeField(83, 'Criminology', '🔍', 'Study crime, justice, and prevention.',
+    ['Civics', 'History', 'English'],
+    ['Analysis', 'Empathy', 'Research'],
+    '4-year BA in Criminology.',
+    'Read crime novels. Follow justice news.',
+    'Study law, psychology, and criminal justice.',
+    'Focus on criminology theory and research.',
+    'Apply to criminology programs.'),
+  makeField(84, 'Education & Teaching', '🎓', 'Teach students in schools and colleges.',
+    ['English', 'Mathematics', 'a science'],
+    ['Communication', 'Patience', 'Organization', 'Passion'],
+    '4-year BEd or BA/BSc + PGDT.',
+    'Help classmates study. Explain things.',
+    'Study the subject you want to teach.',
+    'Focus on pedagogy and child development.',
+    'Apply to education programs. Get teaching license.'),
+  makeField(85, 'Journalism', '📰', 'Report news and tell important stories.',
+    ['English', 'History', 'Civics'],
+    ['Writing', 'Curiosity', 'Interviewing', 'Ethics'],
+    '4-year BA in Journalism.',
+    'Write for school newspaper. Read news.',
+    'Study writing, ethics, and media.',
+    'Focus on investigative reporting.',
+    'Apply to journalism programs. Build a portfolio.'),
+
+  makeField(86, 'Graphic Design', '🎨', 'Design visuals, logos, and brand identities.',
+    ['ICT', 'English', 'Art'],
+    ['Design tools', 'Creativity', 'Typography'],
+    '4-year BFA in Graphic Design.',
+    'Draw. Learn color and design basics.',
+    'Learn Adobe tools (Photoshop, Illustrator).',
+    'Build a design portfolio.',
+    'Apply to design programs.'),
+  makeField(87, 'Interior Design', '🛋️', 'Design the inside of buildings and spaces.',
+    ['Art', 'Mathematics', 'English'],
+    ['Spatial thinking', 'Creativity', '3D tools'],
+    '4-year BFA in Interior Design.',
+    'Sketch rooms. Learn about design.',
+    'Study space planning and materials.',
+    'Build a portfolio. Learn 3D tools.',
+    'Apply to interior design programs.'),
+  makeField(88, 'Fashion Design', '👗', 'Design clothing and accessories.',
+    ['Art', 'English', 'ICT'],
+    ['Drawing', 'Creativity', 'Sewing', 'Trend awareness'],
+    '4-year BFA in Fashion Design.',
+    'Sketch outfits. Learn basic sewing.',
+    'Study fashion history and textiles.',
+    'Build a portfolio. Learn CAD.',
+    'Apply to fashion programs.'),
+  makeField(89, 'Film & Media', '🎬', 'Create films, TV, and video content.',
+    ['English', 'ICT', 'History'],
+    ['Storytelling', 'Camera skills', 'Editing'],
+    '4-year BFA in Film or Media.',
+    'Make short videos with your phone.',
+    'Study storytelling and cinematography.',
+    'Learn editing (Premiere, DaVinci).',
+    'Build a portfolio. Apply to film school.'),
+  makeField(90, 'Photography', '📷', 'Capture and edit professional images.',
+    ['Art', 'ICT', 'English'],
+    ['Camera skills', 'Editing', 'Composition'],
+    '4-year BFA in Photography.',
+    'Take photos. Learn composition.',
+    'Study lighting and editing.',
+    'Build a portfolio. Learn Lightroom.',
+    'Apply to photography programs.'),
+  makeField(91, 'Music', '🎵', 'Perform, compose, or produce music.',
+    ['Music', 'English', 'History'],
+    ['Instrument/voice', 'Music theory', 'Creativity'],
+    '4-year BMus degree.',
+    'Learn an instrument. Join a band.',
+    'Study music theory and history.',
+    'Focus on performance or composition.',
+    'Apply to music schools. Audition.'),
+  makeField(92, 'Fine Arts', '🖼️', 'Paint, draw, or sculpt professionally.',
+    ['Art', 'History', 'English'],
+    ['Drawing', 'Painting', 'Creativity', 'Art history'],
+    '4-year BFA in Fine Arts.',
+    'Draw every day. Take art classes.',
+    'Study art history and techniques.',
+    'Build a portfolio. Develop your style.',
+    'Apply to art school.'),
+  makeField(93, 'Theatre & Drama', '🎭', 'Perform on stage in plays and shows.',
+    ['English', 'History', 'Art'],
+    ['Acting', 'Voice', 'Memory', 'Confidence'],
+    '4-year BFA in Theatre.',
+    'Join drama club. Perform in school plays.',
+    'Study acting techniques and theatre history.',
+    'Focus on performance and directing.',
+    'Audition for theatre programs.'),
+  makeField(94, 'Animation', '🎞️', 'Create animated films and characters.',
+    ['ICT', 'Art', 'Mathematics'],
+    ['Drawing', 'Animation software', 'Storytelling'],
+    '4-year BFA in Animation.',
+    'Draw. Watch animation closely.',
+    'Learn animation principles and 2D tools.',
+    'Learn 3D (Blender, Maya). Build a reel.',
+    'Apply to animation programs.'),
+  makeField(95, 'Writing & Literature', '✍️', 'Write books, articles, and poetry.',
+    ['English', 'History', 'a language'],
+    ['Writing', 'Reading', 'Editing', 'Creativity'],
+    '4-year BA in English or Creative Writing.',
+    'Read widely. Write every day.',
+    'Study literature and writing craft.',
+    'Focus on your genre. Get feedback.',
+    'Build a writing portfolio. Apply to programs.'),
+
+  makeField(96, 'Agriculture', '🌾', 'Grow crops and raise livestock.',
+    ['Biology', 'Chemistry', 'Geography'],
+    ['Farming', 'Biology', 'Business sense'],
+    '4-year BSc in Agriculture.',
+    'Learn about crops and soil.',
+    'Study plant and animal science.',
+    'Focus on agronomy and farm management.',
+    'Apply to agriculture programs.'),
+  makeField(97, 'Animal Science', '🐄', 'Raise and manage farm animals.',
+    ['Biology', 'Chemistry', 'Mathematics'],
+    ['Animal care', 'Biology', 'Business'],
+    '4-year BSc in Animal Science.',
+    'Learn about farm animals.',
+    'Study animal nutrition and breeding.',
+    'Focus on livestock management.',
+    'Apply to animal science programs.'),
+  makeField(98, 'Plant Science', '🌱', 'Study and grow plants for food and industry.',
+    ['Biology', 'Chemistry', 'Geography'],
+    ['Biology', 'Field work', 'Research'],
+    '4-year BSc in Plant Science.',
+    'Grow plants. Learn botany.',
+    'Study plant physiology and genetics.',
+    'Focus on crop science.',
+    'Apply to plant science programs.'),
+  makeField(99, 'Food Science', '🍞', 'Study food processing, safety, and nutrition.',
+    ['Chemistry', 'Biology', 'Mathematics'],
+    ['Chemistry', 'Lab skills', 'Quality control'],
+    '4-year BSc in Food Science.',
+    'Learn about food and cooking chemistry.',
+    'Study food processing and safety.',
+    'Focus on nutrition and quality control.',
+    'Apply to food science programs.'),
+  makeField(100, 'Tourism & Hospitality', '🏨', 'Manage hotels, tours, and travel services.',
+    ['English', 'Geography', 'Economics'],
+    ['Customer service', 'Languages', 'Organization'],
+    '4-year BSc in Tourism or Hospitality.',
+    'Learn about your region\'s attractions.',
+    'Study tourism management and languages.',
+    'Focus on hospitality and business.',
+    'Apply to tourism programs.'),
 ];
 
 export default function Fields() {
-  const toast = useToast();
+  const [search, setSearch] = useState('');
   const [selected, setSelected] = useState(null);
 
-  const chooseField = (field) => {
-    toast.push(`Exploring ${field.name}!`, 'success');
-    setSelected(null);
-  };
+  const filtered = FIELDS.filter((f) => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return f.name.toLowerCase().includes(q) || f.description.toLowerCase().includes(q);
+  });
 
   return (
     <div className="space-y-6 animate-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Explore Fields</h1>
-        <p className="text-sm text-slate-500">
-          Discover fields of study that match your interests.
+        <h1 className="page-title">Explore Fields</h1>
+        <p className="page-subtitle">
+          100 careers — with subjects, grade-by-grade plan, skills, and university path.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {FIELDS.map((f) => (
-          <div key={f.id} className="card-hover flex flex-col p-5">
-            <span className="text-3xl">{f.icon}</span>
-            <h3 className="mt-3 font-bold text-slate-800">{f.name}</h3>
-            <p className="mt-1 flex-1 text-sm text-slate-500">{f.description}</p>
-
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {f.subjects.slice(0, 3).map((s) => (
-                <span key={s} className="chip">
-                  {s}
-                </span>
-              ))}
-            </div>
-
-            <button
-              onClick={() => setSelected(f)}
-              className="btn-primary mt-4 w-full text-sm"
-            >
-              View details
-            </button>
-          </div>
-        ))}
+      <div className="card p-4">
+        <input
+          className="input"
+          placeholder="Search fields... (e.g. medicine, software, law)"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <p className="mt-2 text-xs text-slate-400 dark:text-ink-500">
+          {filtered.length} of 100 fields · Click any card for full details
+        </p>
       </div>
+
+      {filtered.length === 0 ? (
+        <Empty icon="🧭" title="No fields found" message="Try a different search term." />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setSelected(f)}
+              className="card-hover p-5 text-left"
+            >
+              <div className="flex items-start justify-between">
+                <span className="text-3xl">{f.icon}</span>
+                <span className="text-xs font-semibold text-slate-300 dark:text-ink-600">
+                  #{f.id}
+                </span>
+              </div>
+
+              <h3 className="mt-3 font-bold text-slate-800 dark:text-ink-50">
+                {f.name}
+              </h3>
+              <p className="mt-1 text-sm text-slate-600 dark:text-ink-300">
+                {f.description}
+              </p>
+
+              <div className="mt-3">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-ink-500">
+                  Subjects needed
+                </div>
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {f.subjects.map((s) => (
+                    <span key={s} className="chip">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-4 text-xs font-medium text-blue-600 dark:text-blue-400">
+                View full plan →
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       <Modal
         open={!!selected}
         onClose={() => setSelected(null)}
-        title={selected?.name}
+        title={selected ? `${selected.icon} ${selected.name}` : ''}
         wide
         footer={
-          <>
-            <button className="btn-secondary" onClick={() => setSelected(null)}>
-              Close
-            </button>
-            <button
-              className="btn-primary"
-              onClick={() => chooseField(selected)}
-            >
-              Explore this field
-            </button>
-          </>
+          <button className="btn-secondary" onClick={() => setSelected(null)}>
+            Close
+          </button>
         }
       >
         {selected && (
-          <div className="space-y-4">
-            <p className="text-sm text-slate-600">{selected.description}</p>
+          <div className="space-y-5">
+            <p className="text-sm text-slate-600 dark:text-ink-300">
+              {selected.description}
+            </p>
 
             <div>
-              <h4 className="text-sm font-semibold text-slate-700">
-                📚 Important subjects
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-ink-200">
+                📚 Subjects needed
               </h4>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {selected.subjects.map((s) => (
-                  <span key={s} className="chip">
-                    {s}
-                  </span>
+                  <span key={s} className="chip">{s}</span>
                 ))}
               </div>
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-slate-700">
-                🛠️ Skills to develop
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-ink-200">
+                🎓 Grade-by-grade plan
+              </h4>
+              <div className="mt-2 space-y-2">
+                {[9, 10, 11, 12].map((g) => (
+                  <div
+                    key={g}
+                    className="rounded-xl border border-slate-100 p-3 dark:border-ink-800"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="badge bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
+                        Grade {g}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-ink-300">
+                      {selected.gradePlan[g]}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-ink-200">
+                🛠️ Skills to learn
               </h4>
               <ul className="mt-2 space-y-1">
                 {selected.skills.map((s) => (
-                  <li key={s} className="text-sm text-slate-600">
+                  <li key={s} className="text-sm text-slate-600 dark:text-ink-300">
                     • {s}
                   </li>
                 ))}
@@ -168,29 +959,12 @@ export default function Fields() {
             </div>
 
             <div>
-              <h4 className="text-sm font-semibold text-slate-700">
-                🎓 University degrees
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-ink-200">
+                🎯 How to finish at university
               </h4>
-              <ul className="mt-2 space-y-1">
-                {selected.degrees.map((d) => (
-                  <li key={d} className="text-sm text-slate-600">
-                    • {d}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-semibold text-slate-700">
-                💼 Possible careers
-              </h4>
-              <ul className="mt-2 space-y-1">
-                {selected.careers.map((c) => (
-                  <li key={c} className="text-sm text-slate-600">
-                    • {c}
-                  </li>
-                ))}
-              </ul>
+              <p className="mt-2 text-sm text-slate-600 dark:text-ink-300">
+                {selected.university}
+              </p>
             </div>
           </div>
         )}

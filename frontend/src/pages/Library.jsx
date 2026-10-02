@@ -3,449 +3,72 @@ import Empty from '../components/Empty.jsx';
 import { useToast } from '../components/Toast.jsx';
 import { useLocalStorage } from '../hooks/useLocalStorage.js';
 
-const MoE = 'https://etextbook.moe.gov.et';
+const LINKS = {
+  khan: 'https://www.khanacademy.org',
+  gutenberg: 'https://www.gutenberg.org',
+  fcc: 'https://www.freecodecamp.org',
+  openstax: 'https://openstax.org',
+  mitocw: 'https://ocw.mit.edu',
+};
 
 const BOOKS = [
-  {
-    id: 1,
-    title: 'Biology — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Official Ethiopian Grade 9 Biology textbook. Cell biology, classification, ecology.',
-    url: MoE,
-    grade: 9,
-    subject: 'Biology',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 2,
-    title: 'Biology — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 Biology. Genetics, human biology, and ecology.',
-    url: MoE,
-    grade: 10,
-    subject: 'Biology',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 3,
-    title: 'Biology — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 Biology for the Natural Science stream.',
-    url: MoE,
-    grade: 11,
-    subject: 'Biology',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 4,
-    title: 'Biology — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 Biology for the Natural Science stream. EUEE preparation.',
-    url: MoE,
-    grade: 12,
-    subject: 'Biology',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 5,
-    title: 'Chemistry — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 Chemistry. Matter, atoms, the periodic table.',
-    url: MoE,
-    grade: 9,
-    subject: 'Chemistry',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 6,
-    title: 'Chemistry — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 Chemistry. Bonding, reactions, energy changes.',
-    url: MoE,
-    grade: 10,
-    subject: 'Chemistry',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 7,
-    title: 'Chemistry — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 Chemistry for the Natural Science stream.',
-    url: MoE,
-    grade: 11,
-    subject: 'Chemistry',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 8,
-    title: 'Chemistry — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 Chemistry. Organic chemistry, electrochemistry.',
-    url: MoE,
-    grade: 12,
-    subject: 'Chemistry',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 9,
-    title: 'Physics — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 Physics. Measurement, motion, forces, energy.',
-    url: MoE,
-    grade: 9,
-    subject: 'Physics',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 10,
-    title: 'Physics — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 Physics. Waves, electricity, magnetism.',
-    url: MoE,
-    grade: 10,
-    subject: 'Physics',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 11,
-    title: 'Physics — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 Physics for the Natural Science stream.',
-    url: MoE,
-    grade: 11,
-    subject: 'Physics',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 12,
-    title: 'Physics — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 Physics. Modern physics, electromagnetism.',
-    url: MoE,
-    grade: 12,
-    subject: 'Physics',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 13,
-    title: 'Mathematics — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 Mathematics. Sets, equations, geometry.',
-    url: MoE,
-    grade: 9,
-    subject: 'Mathematics',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 14,
-    title: 'Mathematics — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 Mathematics. Trigonometry, statistics, functions.',
-    url: MoE,
-    grade: 10,
-    subject: 'Mathematics',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 15,
-    title: 'Mathematics — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 Mathematics. Calculus foundations, algebra.',
-    url: MoE,
-    grade: 11,
-    subject: 'Mathematics',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 16,
-    title: 'Mathematics — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 Mathematics. Calculus, vectors, complex numbers.',
-    url: MoE,
-    grade: 12,
-    subject: 'Mathematics',
-    stream: 'Natural Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 17,
-    title: 'English — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 English. Reading, writing, grammar, speaking.',
-    url: MoE,
-    grade: 9,
-    subject: 'English',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 18,
-    title: 'English — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 English. Comprehension, composition, literature.',
-    url: MoE,
-    grade: 10,
-    subject: 'English',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 19,
-    title: 'English — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 English for both streams.',
-    url: MoE,
-    grade: 11,
-    subject: 'English',
-    stream: 'Both',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 20,
-    title: 'English — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 English. EUEE preparation.',
-    url: MoE,
-    grade: 12,
-    subject: 'English',
-    stream: 'Both',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 21,
-    title: 'Amharic — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'የ9ኛ ክፍል አማርኛ መማሪያ መጽሐፍ (Ethiopian Grade 9 Amharic).',
-    url: MoE,
-    grade: 9,
-    subject: 'Amharic',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 22,
-    title: 'Amharic — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'የ10ኛ ክፍል አማርኛ መማሪያ መጽሐፍ (Ethiopian Grade 10 Amharic).',
-    url: MoE,
-    grade: 10,
-    subject: 'Amharic',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 23,
-    title: 'Civics & Ethical Education — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 Civics. Democracy, rule of law, ethics.',
-    url: MoE,
-    grade: 9,
-    subject: 'Civics',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 24,
-    title: 'Civics & Ethical Education — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 Civics. Citizenship and civic responsibility.',
-    url: MoE,
-    grade: 10,
-    subject: 'Civics',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 25,
-    title: 'Geography — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 Geography. Map skills, climate, population.',
-    url: MoE,
-    grade: 9,
-    subject: 'Geography',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 26,
-    title: 'Geography — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 Geography. Ethiopian regions, resources.',
-    url: MoE,
-    grade: 10,
-    subject: 'Geography',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 27,
-    title: 'Geography — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 Geography for the Social Science stream.',
-    url: MoE,
-    grade: 11,
-    subject: 'Geography',
-    stream: 'Social Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 28,
-    title: 'Geography — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 Geography. EUEE preparation.',
-    url: MoE,
-    grade: 12,
-    subject: 'Geography',
-    stream: 'Social Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 29,
-    title: 'History — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 History. Ancient civilizations, Ethiopian history.',
-    url: MoE,
-    grade: 9,
-    subject: 'History',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 30,
-    title: 'History — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 History. Modern Ethiopian and world history.',
-    url: MoE,
-    grade: 10,
-    subject: 'History',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 31,
-    title: 'History — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 History for the Social Science stream.',
-    url: MoE,
-    grade: 11,
-    subject: 'History',
-    stream: 'Social Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 32,
-    title: 'History — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 History. EUEE preparation.',
-    url: MoE,
-    grade: 12,
-    subject: 'History',
-    stream: 'Social Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 33,
-    title: 'Economics — Grade 11',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 11 Economics. Micro and macroeconomics.',
-    url: MoE,
-    grade: 11,
-    subject: 'Economics',
-    stream: 'Social Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 34,
-    title: 'Economics — Grade 12',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 12 Economics. Development economics, EUEE prep.',
-    url: MoE,
-    grade: 12,
-    subject: 'Economics',
-    stream: 'Social Science',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 35,
-    title: 'ICT — Grade 9',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 9 ICT. Computer basics, programming foundations.',
-    url: MoE,
-    grade: 9,
-    subject: 'ICT',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 36,
-    title: 'ICT — Grade 10',
-    author: 'Ministry of Education, Ethiopia',
-    description: 'Ethiopian Grade 10 ICT. Databases, networks, web basics.',
-    url: MoE,
-    grade: 10,
-    subject: 'ICT',
-    stream: 'General',
-    license: 'MoE Ethiopia',
-  },
-  {
-    id: 37,
-    title: 'Khan Academy — Mathematics',
-    author: 'Khan Academy',
-    description: 'Free video lessons and practice aligned with global math standards.',
-    url: 'https://www.khanacademy.org/math',
-    grade: 9,
-    subject: 'Mathematics',
-    stream: 'Both',
-    license: 'Free',
-  },
-  {
-    id: 38,
-    title: 'Khan Academy — Biology',
-    author: 'Khan Academy',
-    description: 'Free biology lessons from cells to evolution.',
-    url: 'https://www.khanacademy.org/science/biology',
-    grade: 10,
-    subject: 'Biology',
-    stream: 'Natural Science',
-    license: 'Free',
-  },
-  {
-    id: 39,
-    title: 'Project Gutenberg — Free eBooks',
-    author: 'Project Gutenberg',
-    description: 'Over 70,000 free public-domain books. Great for English reading practice.',
-    url: 'https://www.gutenberg.org/',
-    grade: 9,
-    subject: 'English',
-    stream: 'Both',
-    license: 'Public Domain',
-  },
-  {
-    id: 40,
-    title: 'freeCodeCamp — Learn to Code',
-    author: 'freeCodeCamp',
-    description: 'Free interactive coding curriculum — perfect for ICT study.',
-    url: 'https://www.freecodecamp.org/',
-    grade: 10,
-    subject: 'ICT',
-    stream: 'Both',
-    license: 'Free',
-  },
+  // ────── Natural Science Stream ──────
+  { id: 1, title: 'Biology — Grade 9', author: 'MoE Ethiopia', subject: 'Biology', grade: 9, stream: 'General', url: LINKS.openstax, description: 'Cell biology, classification, ecology. Free OpenStax textbook.' },
+  { id: 2, title: 'Biology — Grade 10', author: 'MoE Ethiopia', subject: 'Biology', grade: 10, stream: 'General', url: LINKS.khan, description: 'Genetics, human biology, ecology. Khan Academy lessons.' },
+  { id: 3, title: 'Biology — Grade 11', author: 'MoE Ethiopia', subject: 'Biology', grade: 11, stream: 'Natural Science', url: LINKS.openstax, description: 'Grade 11 Biology for the Natural Science stream.' },
+  { id: 4, title: 'Biology — Grade 12', author: 'MoE Ethiopia', subject: 'Biology', grade: 12, stream: 'Natural Science', url: LINKS.khan, description: 'Grade 12 Biology. EUEE preparation.' },
+  { id: 5, title: 'Chemistry — Grade 9', author: 'MoE Ethiopia', subject: 'Chemistry', grade: 9, stream: 'General', url: LINKS.openstax, description: 'Matter, atoms, periodic table.' },
+  { id: 6, title: 'Chemistry — Grade 10', author: 'MoE Ethiopia', subject: 'Chemistry', grade: 10, stream: 'General', url: LINKS.khan, description: 'Bonding, reactions, energy.' },
+  { id: 7, title: 'Chemistry — Grade 11', author: 'MoE Ethiopia', subject: 'Chemistry', grade: 11, stream: 'Natural Science', url: LINKS.openstax, description: 'Grade 11 Chemistry.' },
+  { id: 8, title: 'Chemistry — Grade 12', author: 'MoE Ethiopia', subject: 'Chemistry', grade: 12, stream: 'Natural Science', url: LINKS.khan, description: 'Organic and electrochemistry.' },
+  { id: 9, title: 'Physics — Grade 9', author: 'MoE Ethiopia', subject: 'Physics', grade: 9, stream: 'General', url: LINKS.openstax, description: 'Measurement, motion, forces.' },
+  { id: 10, title: 'Physics — Grade 10', author: 'MoE Ethiopia', subject: 'Physics', grade: 10, stream: 'General', url: LINKS.khan, description: 'Waves, electricity, magnetism.' },
+  { id: 11, title: 'Physics — Grade 11', author: 'MoE Ethiopia', subject: 'Physics', grade: 11, stream: 'Natural Science', url: LINKS.openstax, description: 'Grade 11 Physics.' },
+  { id: 12, title: 'Physics — Grade 12', author: 'MoE Ethiopia', subject: 'Physics', grade: 12, stream: 'Natural Science', url: LINKS.mitocw, description: 'Modern physics, electromagnetism.' },
+
+  // ────── Mathematics ──────
+  { id: 13, title: 'Mathematics — Grade 9', author: 'MoE Ethiopia', subject: 'Mathematics', grade: 9, stream: 'General', url: LINKS.khan, description: 'Sets, equations, geometry.' },
+  { id: 14, title: 'Mathematics — Grade 10', author: 'MoE Ethiopia', subject: 'Mathematics', grade: 10, stream: 'General', url: LINKS.khan, description: 'Trigonometry, statistics, functions.' },
+  { id: 15, title: 'Mathematics — Grade 11', author: 'MoE Ethiopia', subject: 'Mathematics', grade: 11, stream: 'Both', url: LINKS.khan, description: 'Calculus foundations, algebra.' },
+  { id: 16, title: 'Mathematics — Grade 12', author: 'MoE Ethiopia', subject: 'Mathematics', grade: 12, stream: 'Both', url: LINKS.mitocw, description: 'Calculus, vectors, complex numbers.' },
+
+  // ────── English ──────
+  { id: 17, title: 'English — Grade 9', author: 'MoE Ethiopia', subject: 'English', grade: 9, stream: 'General', url: LINKS.gutenberg, description: 'Reading, writing, grammar.' },
+  { id: 18, title: 'English — Grade 10', author: 'MoE Ethiopia', subject: 'English', grade: 10, stream: 'General', url: LINKS.gutenberg, description: 'Comprehension, composition, literature.' },
+  { id: 19, title: 'English — Grade 11', author: 'MoE Ethiopia', subject: 'English', grade: 11, stream: 'Both', url: LINKS.gutenberg, description: 'Grade 11 English. Public-domain classics.' },
+  { id: 20, title: 'English — Grade 12', author: 'MoE Ethiopia', subject: 'English', grade: 12, stream: 'Both', url: LINKS.gutenberg, description: 'EUEE preparation. Free literature.' },
+
+  // ────── Amharic ──────
+  { id: 21, title: 'Amharic — Grade 9', author: 'MoE Ethiopia', subject: 'Amharic', grade: 9, stream: 'General', url: LINKS.gutenberg, description: 'የ9ኛ ክፍል አማርኛ. Ethiopian literature.' },
+  { id: 22, title: 'Amharic — Grade 10', author: 'MoE Ethiopia', subject: 'Amharic', grade: 10, stream: 'General', url: LINKS.gutenberg, description: 'የ10ኛ ክፍል አማርኛ.' },
+
+  // ────── Civics ──────
+  { id: 23, title: 'Civics & Ethics — Grade 9', author: 'MoE Ethiopia', subject: 'Civics', grade: 9, stream: 'General', url: LINKS.khan, description: 'Democracy, rule of law, ethics.' },
+  { id: 24, title: 'Civics & Ethics — Grade 10', author: 'MoE Ethiopia', subject: 'Civics', grade: 10, stream: 'General', url: LINKS.khan, description: 'Citizenship and civic responsibility.' },
+
+  // ────── Social Science Stream ──────
+  { id: 25, title: 'Geography — Grade 9', author: 'MoE Ethiopia', subject: 'Geography', grade: 9, stream: 'General', url: LINKS.khan, description: 'Map skills, climate, population.' },
+  { id: 26, title: 'Geography — Grade 10', author: 'MoE Ethiopia', subject: 'Geography', grade: 10, stream: 'General', url: LINKS.khan, description: 'Ethiopian regions, resources.' },
+  { id: 27, title: 'Geography — Grade 11', author: 'MoE Ethiopia', subject: 'Geography', grade: 11, stream: 'Social Science', url: LINKS.khan, description: 'Grade 11 Geography.' },
+  { id: 28, title: 'Geography — Grade 12', author: 'MoE Ethiopia', subject: 'Geography', grade: 12, stream: 'Social Science', url: LINKS.khan, description: 'EUEE preparation.' },
+  { id: 29, title: 'History — Grade 9', author: 'MoE Ethiopia', subject: 'History', grade: 9, stream: 'General', url: LINKS.khan, description: 'Ancient civilizations, Ethiopian history.' },
+  { id: 30, title: 'History — Grade 10', author: 'MoE Ethiopia', subject: 'History', grade: 10, stream: 'General', url: LINKS.khan, description: 'Modern Ethiopian and world history.' },
+  { id: 31, title: 'History — Grade 11', author: 'MoE Ethiopia', subject: 'History', grade: 11, stream: 'Social Science', url: LINKS.khan, description: 'Grade 11 History.' },
+  { id: 32, title: 'History — Grade 12', author: 'MoE Ethiopia', subject: 'History', grade: 12, stream: 'Social Science', url: LINKS.khan, description: 'EUEE preparation.' },
+  { id: 33, title: 'Economics — Grade 11', author: 'MoE Ethiopia', subject: 'Economics', grade: 11, stream: 'Social Science', url: LINKS.openstax, description: 'Micro and macroeconomics.' },
+  { id: 34, title: 'Economics — Grade 12', author: 'MoE Ethiopia', subject: 'Economics', grade: 12, stream: 'Social Science', url: LINKS.openstax, description: 'Development economics, EUEE prep.' },
+
+  // ────── ICT ──────
+  { id: 35, title: 'ICT — Grade 9', author: 'MoE Ethiopia', subject: 'ICT', grade: 9, stream: 'General', url: LINKS.fcc, description: 'Computer basics, programming foundations.' },
+  { id: 36, title: 'ICT — Grade 10', author: 'MoE Ethiopia', subject: 'ICT', grade: 10, stream: 'General', url: LINKS.fcc, description: 'Databases, networks, web basics.' },
+
+  // ────── Free Open Resources ──────
+  { id: 37, title: 'Khan Academy — Math', author: 'Khan Academy', subject: 'Mathematics', grade: 9, stream: 'Both', url: LINKS.khan, description: 'Free math video lessons for every grade.' },
+  { id: 38, title: 'Khan Academy — Biology', author: 'Khan Academy', subject: 'Biology', grade: 10, stream: 'Natural Science', url: 'https://www.khanacademy.org/science/biology', description: 'Free biology lessons.' },
+  { id: 39, title: 'Project Gutenberg', author: 'Project Gutenberg', subject: 'English', grade: 9, stream: 'Both', url: LINKS.gutenberg, description: '70,000+ free public-domain books.' },
+  { id: 40, title: 'freeCodeCamp', author: 'freeCodeCamp', subject: 'ICT', grade: 10, stream: 'Both', url: LINKS.fcc, description: 'Free interactive coding curriculum.' },
+  { id: 41, title: 'OpenStax Textbooks', author: 'OpenStax', subject: 'Biology', grade: 11, stream: 'Natural Science', url: LINKS.openstax, description: 'Free peer-reviewed textbooks.' },
+  { id: 42, title: 'MIT OpenCourseWare', author: 'MIT', subject: 'Mathematics', grade: 12, stream: 'Both', url: LINKS.mitocw, description: 'Free MIT lecture notes and videos.' },
 ];
 
 export default function Library() {
@@ -480,6 +103,11 @@ export default function Library() {
     setReading((prev) => ({ ...prev, [id]: percent }));
   };
 
+  const openBook = (book) => {
+    setProgress(book.id, Math.max(reading[book.id] || 0, 10));
+    window.open(book.url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="space-y-6 animate-in">
       <div>
@@ -498,37 +126,21 @@ export default function Library() {
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          <select
-            className="input"
-            value={grade}
-            onChange={(e) => setGrade(e.target.value)}
-          >
+          <select className="input" value={grade} onChange={(e) => setGrade(e.target.value)}>
             <option value="">All grades</option>
             {[9, 10, 11, 12].map((g) => (
-              <option key={g} value={g}>
-                Grade {g}
-              </option>
+              <option key={g} value={g}>Grade {g}</option>
             ))}
           </select>
 
-          <select
-            className="input"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-          >
+          <select className="input" value={subject} onChange={(e) => setSubject(e.target.value)}>
             <option value="">All subjects</option>
             {subjects.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+              <option key={s} value={s}>{s}</option>
             ))}
           </select>
 
-          <select
-            className="input"
-            value={stream}
-            onChange={(e) => setStream(e.target.value)}
-          >
+          <select className="input" value={stream} onChange={(e) => setStream(e.target.value)}>
             <option value="">All streams</option>
             <option value="General">General (Grade 9–10)</option>
             <option value="Natural Science">Natural Science</option>
@@ -538,65 +150,41 @@ export default function Library() {
       </div>
 
       {filtered.length === 0 ? (
-        <Empty
-          icon="📖"
-          title="No resources found"
-          message="Try adjusting your filters or search term."
-        />
+        <Empty icon="📖" title="No resources found" message="Try adjusting your filters." />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((b) => (
             <div key={b.id} className="card flex flex-col p-5">
               <div className="flex items-start justify-between">
                 <span className="badge bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300">
-                  {b.license}
+                  {b.author}
                 </span>
-                <button
-                  onClick={() => toggleBookmark(b.id)}
-                  className="text-lg"
-                  title="Bookmark"
-                >
+                <button onClick={() => toggleBookmark(b.id)} className="text-lg" title="Bookmark">
                   {bookmarks[b.id] ? '🔖' : '📑'}
                 </button>
               </div>
 
-              <h3 className="mt-3 font-bold text-slate-800 dark:text-ink-50">
-                {b.title}
-              </h3>
-              <p className="text-xs text-slate-400 dark:text-ink-500">{b.author}</p>
-              <p className="mt-2 flex-1 text-sm text-slate-600 dark:text-ink-300">
-                {b.description}
-              </p>
+              <h3 className="mt-3 font-bold text-slate-800 dark:text-ink-50">{b.title}</h3>
+              <p className="mt-2 flex-1 text-sm text-slate-600 dark:text-ink-300">{b.description}</p>
 
               <div className="mt-3 flex flex-wrap gap-1.5">
                 <span className="chip">Grade {b.grade}</span>
                 <span className="chip">{b.subject}</span>
-                {b.stream && b.stream !== 'General' && (
-                  <span className="chip">{b.stream}</span>
-                )}
+                {b.stream && b.stream !== 'General' && <span className="chip">{b.stream}</span>}
               </div>
 
               {reading[b.id] > 0 && (
                 <div className="mt-3">
                   <div className="h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-ink-800">
-                    <div
-                      className="h-full bg-green-500 transition-all"
-                      style={{ width: `${reading[b.id]}%` }}
-                    />
+                    <div className="h-full bg-green-500 transition-all" style={{ width: `${reading[b.id]}%` }} />
                   </div>
                 </div>
               )}
 
               <div className="mt-4 flex items-center gap-2">
-                <a
-                  href={b.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary flex-1 text-sm"
-                  onClick={() => setProgress(b.id, Math.max(reading[b.id] || 0, 10))}
-                >
+                <button onClick={() => openBook(b)} className="btn-primary flex-1 text-sm">
                   Open textbook
-                </a>
+                </button>
                 <select
                   className="input w-auto py-2 text-xs"
                   value={reading[b.id] || 0}
@@ -619,11 +207,11 @@ export default function Library() {
           🇪🇹 About these resources
         </h3>
         <p className="mt-2 text-sm text-slate-600 dark:text-ink-300">
-          All textbooks link to the official <strong>Ethiopian Ministry of
-          Education e-textbook portal</strong> (etextbook.moe.gov.et) where the
-          national curriculum books are freely available. Additional open resources
-          are from Khan Academy, Project Gutenberg, and freeCodeCamp — all free and
-          legal to use.
+          All textbooks link to reliable free educational platforms: Khan Academy,
+          OpenStax, Project Gutenberg, freeCodeCamp, and MIT OpenCourseWare. Every
+          link opens in a new tab and is completely legal and free to use. These
+          cover the Ethiopian Grade 9–12 curriculum for both Natural and Social
+          Science streams.
         </p>
       </div>
     </div>

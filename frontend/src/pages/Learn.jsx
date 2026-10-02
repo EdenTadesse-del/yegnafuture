@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import Empty from '../components/Empty.jsx';
+import Modal from '../components/Modal.jsx';
+import { useToast } from '../components/Toast.jsx';
+import { useLocalStorage } from '../hooks/useLocalStorage.js';
 
 const CURRICULUM = {
   9: {
@@ -85,8 +88,14 @@ const CURRICULUM = {
 
 export default function Learn() {
   const { user, updateProfile } = useAuth();
+  const toast = useToast();
   const [grade, setGrade] = useState(user?.grade || 9);
   const [stream, setStream] = useState(user?.stream || 'Natural Science');
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [activeTab, setActiveTab] = useState('notes');
+
+  const [notes, setNotes] = useLocalStorage('yf_notes', {});
+  const [assignments, setAssignments] = useLocalStorage('yf_assignments', {});
 
   const isUpperGrade = grade >= 11;
   const data = CURRICULUM[grade];
@@ -101,6 +110,31 @@ export default function Learn() {
   const changeStream = (s) => {
     setStream(s);
     if (isUpperGrade) updateProfile({ stream: s });
+  };
+
+  const noteKey = (subject) => `${grade}-${stream || 'general'}-${subject}`;
+
+  const saveNote = (subject, text) => {
+    setNotes((prev) => ({ ...prev, [noteKey(subject)]: text }));
+    toast.push('Note saved!', 'success');
+  };
+
+  const addAssignment = (subject, { title, image }) => {
+    const key = noteKey(subject);
+    setAssignments((prev) => ({
+      ...prev,
+      [key]: [...(prev[key] || []), { id: Date.now(), title, image, date: new Date().toISOString() }],
+    }));
+    toast.push('Assignment saved!', 'success');
+  };
+
+  const deleteAssignment = (subject, id) => {
+    const key = noteKey(subject);
+    setAssignments((prev) => ({
+      ...prev,
+      [key]: (prev[key] || []).filter((a) => a.id !== id),
+    }));
+    toast.push('Assignment deleted', 'info');
   };
 
   return (
@@ -165,37 +199,52 @@ export default function Learn() {
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {subjects.map((s) => (
-            <div key={s.name} className="card-hover p-5">
-              <div className="flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl dark:bg-blue-500/10">
-                  {s.icon}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-bold text-slate-800 dark:text-ink-50">
-                    {s.name}
-                  </div>
-                  <div className="text-xs text-slate-400 dark:text-ink-500">
-                    Grade {grade} · {s.code}
-                  </div>
-                </div>
-              </div>
+          {subjects.map((s) => {
+            const key = noteKey(s.name);
+            const hasNote = notes[key] && notes[key].trim().length > 0;
+            const assignmentCount = (assignments[key] || []).length;
 
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600 dark:text-ink-300">Progress</span>
-                  <span className="text-slate-400 dark:text-ink-500">Not started</span>
+            return (
+              <button
+                key={s.name}
+                onClick={() => {
+                  setSelectedSubject(s);
+                  setActiveTab('notes');
+                }}
+                className="card-hover p-5 text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl dark:bg-blue-500/10">
+                    {s.icon}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-bold text-slate-800 dark:text-ink-50">
+                      {s.name}
+                    </div>
+                    <div className="text-xs text-slate-400 dark:text-ink-500">
+                      Grade {grade} · {s.code}
+                    </div>
+                  </div>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-ink-800">
-                  <div className="h-full w-0 bg-blue-600" />
-                </div>
-              </div>
 
-              <button className="btn-secondary mt-4 w-full text-sm">
-                Open subject
+                <div className="mt-4 flex flex-wrap gap-1.5">
+                  {hasNote && (
+                    <span className="chip bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300">
+                      📝 Has note
+                    </span>
+                  )}
+                  {assignmentCount > 0 && (
+                    <span className="chip bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-300">
+                      📸 {assignmentCount} assignment{assignmentCount > 1 ? 's' : ''}
+                    </span>
+                  )}
+                  {!hasNote && assignmentCount === 0 && (
+                    <span className="chip">Open to add notes</span>
+                  )}
+                </div>
               </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -204,14 +253,227 @@ export default function Learn() {
           📖 About the Ethiopian curriculum
         </h3>
         <p className="mt-2 text-sm text-slate-600 dark:text-ink-300">
-          The Ethiopian secondary school curriculum runs from Grade 9 to Grade 12.
-          Grades 9 and 10 cover general subjects for all students. In Grades 11 and
-          12, students choose between <strong>Natural Science</strong> (Biology,
-          Chemistry, Physics, Mathematics) and <strong>Social Science</strong>{' '}
-          (Geography, History, Economics). The Grade 12 national exam determines
-          university placement.
+          Grades 9 and 10 cover general subjects for all students. Grades 11 and 12
+          split into <strong>Natural Science</strong> (Biology, Chemistry, Physics,
+          Maths) and <strong>Social Science</strong> (Geography, History, Economics).
+          Click any subject to take notes and save assignment photos.
         </p>
       </div>
+
+      {selectedSubject && (
+        <SubjectModal
+          subject={selectedSubject}
+          grade={grade}
+          stream={stream}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          note={notes[noteKey(selectedSubject.name)] || ''}
+          onSaveNote={saveNote}
+          assignments={assignments[noteKey(selectedSubject.name)] || []}
+          onAddAssignment={addAssignment}
+          onDeleteAssignment={deleteAssignment}
+          onClose={() => setSelectedSubject(null)}
+        />
+      )}
     </div>
+  );
+}
+
+function SubjectModal({
+  subject,
+  grade,
+  stream,
+  activeTab,
+  setActiveTab,
+  note,
+  onSaveNote,
+  assignments,
+  onAddAssignment,
+  onDeleteAssignment,
+  onClose,
+}) {
+  const toast = useToast();
+  const [noteText, setNoteText] = useState(note);
+  const [assignTitle, setAssignTitle] = useState('');
+  const [assignImage, setAssignImage] = useState('');
+
+  const pickImage = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 3 * 1024 * 1024) {
+      toast.push('Image must be under 3 MB', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => setAssignImage(ev.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const submitAssignment = () => {
+    if (!assignTitle.trim() || !assignImage) {
+      toast.push('Title and image are required', 'error');
+      return;
+    }
+    onAddAssignment(subject.name, { title: assignTitle.trim(), image: assignImage });
+    setAssignTitle('');
+    setAssignImage('');
+  };
+
+  return (
+    <Modal
+      open={!!subject}
+      onClose={onClose}
+      title={`${subject.icon} ${subject.name}`}
+      wide
+      footer={
+        <button className="btn-secondary" onClick={onClose}>
+          Close
+        </button>
+      }
+    >
+      <div className="mb-4 flex gap-2 border-b border-slate-100 dark:border-ink-800">
+        <button
+          onClick={() => setActiveTab('notes')}
+          className={`px-4 py-2 text-sm font-medium transition ${
+            activeTab === 'notes'
+              ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+              : 'text-slate-500 dark:text-ink-400'
+          }`}
+        >
+          📝 Notes
+        </button>
+        <button
+          onClick={() => setActiveTab('assignments')}
+          className={`px-4 py-2 text-sm font-medium transition ${
+            activeTab === 'assignments'
+              ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400'
+              : 'text-slate-500 dark:text-ink-400'
+          }`}
+        >
+          📸 Assignments ({assignments.length})
+        </button>
+      </div>
+
+      {activeTab === 'notes' && (
+        <div className="space-y-3">
+          <p className="text-sm text-slate-500 dark:text-ink-400">
+            Write your notes for {subject.name} — Grade {grade}
+            {stream ? ` · ${stream}` : ''}. They're saved automatically to this device.
+          </p>
+
+          <textarea
+            className="input"
+            rows={10}
+            value={noteText}
+            onChange={(e) => setNoteText(e.target.value)}
+            placeholder={`Write your ${subject.name} notes here...`}
+          />
+
+          <div className="flex justify-end">
+            <button
+              className="btn-primary"
+              onClick={() => onSaveNote(subject.name, noteText)}
+            >
+              💾 Save note
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'assignments' && (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-dashed border-slate-200 p-4 dark:border-ink-700">
+            <h4 className="text-sm font-semibold text-slate-700 dark:text-ink-200">
+              Add new assignment
+            </h4>
+
+            <div className="mt-3 space-y-3">
+              <input
+                className="input"
+                placeholder="Title (e.g. Chapter 3 quiz)"
+                value={assignTitle}
+                onChange={(e) => setAssignTitle(e.target.value)}
+              />
+
+              <label className="block cursor-pointer rounded-xl border border-slate-200 bg-slate-50 p-4 text-center transition hover:bg-slate-100 dark:border-ink-700 dark:bg-ink-800 dark:hover:bg-ink-700">
+                {assignImage ? (
+                  <img
+                    src={assignImage}
+                    alt="Assignment preview"
+                    className="mx-auto max-h-48 rounded-lg object-contain"
+                  />
+                ) : (
+                  <div>
+                    <div className="text-3xl">📸</div>
+                    <div className="mt-1 text-sm text-slate-600 dark:text-ink-300">
+                      Click to upload a picture of your assignment or result
+                    </div>
+                    <div className="text-xs text-slate-400 dark:text-ink-500">
+                      JPG, PNG — max 3 MB
+                    </div>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={pickImage}
+                />
+              </label>
+
+              {assignImage && (
+                <button
+                  onClick={() => setAssignImage('')}
+                  className="btn-ghost w-full text-sm text-red-500"
+                >
+                  Remove image
+                </button>
+              )}
+
+              <button onClick={submitAssignment} className="btn-primary w-full">
+                Save assignment
+              </button>
+            </div>
+          </div>
+
+          {assignments.length > 0 && (
+            <div>
+              <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-ink-200">
+                Saved assignments ({assignments.length})
+              </h4>
+
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {assignments.map((a) => (
+                  <div
+                    key={a.id}
+                    className="rounded-xl border border-slate-200 p-2 dark:border-ink-700"
+                  >
+                    <img
+                      src={a.image}
+                      alt={a.title}
+                      className="h-32 w-full rounded-lg object-cover"
+                    />
+                    <div className="mt-2 truncate text-xs font-medium text-slate-700 dark:text-ink-200">
+                      {a.title}
+                    </div>
+                    <div className="text-[10px] text-slate-400 dark:text-ink-500">
+                      {new Date(a.date).toLocaleDateString()}
+                    </div>
+                    <button
+                      onClick={() => onDeleteAssignment(subject.name, a.id)}
+                      className="mt-1 w-full rounded-lg py-1 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
   );
 }

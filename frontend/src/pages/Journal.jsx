@@ -23,6 +23,21 @@ const DEFAULT_BACKGROUNDS = [
   { id: 'gold', name: 'Gold', css: 'linear-gradient(135deg, #f59e0b, #92400e)' },
 ];
 
+// Reusable background wrapper used in cards AND modals
+function BackgroundBox({ pageStyle, hasBg, children, className = '' }) {
+  return (
+    <div
+      className={`relative overflow-hidden rounded-2xl ${className}`}
+      style={pageStyle}
+    >
+      {hasBg && (
+        <div className="absolute inset-0 rounded-2xl bg-white/85 dark:bg-ink-950/85" />
+      )}
+      <div className="relative">{children}</div>
+    </div>
+  );
+}
+
 export default function Journal() {
   const toast = useToast();
   const [entries, setEntries] = useLocalStorage('yf_journal', []);
@@ -45,10 +60,15 @@ export default function Journal() {
 
   const selectedBg = DEFAULT_BACKGROUNDS.find((b) => b.id === pageBg);
   const pageStyle = customBg
-    ? { backgroundImage: `url(${customBg})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    ? {
+        backgroundImage: `url(${customBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
     : selectedBg?.css
     ? { backgroundImage: selectedBg.css }
     : {};
+  const hasBg = Object.keys(pageStyle).length > 0;
 
   const openNew = () => {
     setEditing(null);
@@ -169,25 +189,23 @@ export default function Journal() {
                 className="card-hover relative overflow-hidden p-5"
                 style={pageStyle}
               >
-                {Object.keys(pageStyle).length > 0 && (
+                {hasBg && (
                   <div className="absolute inset-0 bg-white/85 dark:bg-ink-950/85" />
                 )}
 
                 <div className="relative">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{mood.emoji}</span>
-                      <div>
-                        <div className="text-xs text-slate-400 dark:text-ink-500">
-                          {new Date(e.date).toLocaleDateString(undefined, {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })}
-                        </div>
-                        <div className="text-xs text-slate-500 dark:text-ink-400">
-                          {mood.label}
-                        </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{mood.emoji}</span>
+                    <div>
+                      <div className="text-xs text-slate-400 dark:text-ink-500">
+                        {new Date(e.date).toLocaleDateString(undefined, {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </div>
+                      <div className="text-xs text-slate-500 dark:text-ink-400">
+                        {mood.label}
                       </div>
                     </div>
                   </div>
@@ -226,6 +244,7 @@ export default function Journal() {
         </div>
       )}
 
+      {/* ─── EDITOR MODAL ─── */}
       <Modal
         open={showEditor}
         onClose={() => setShowEditor(false)}
@@ -242,57 +261,60 @@ export default function Journal() {
           </>
         }
       >
-        <div className="space-y-4">
-          <div>
-            <label className="label">Title</label>
-            <input
-              className="input"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="What's on your mind?"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+        <BackgroundBox pageStyle={pageStyle} hasBg={hasBg} className="p-5">
+          <div className="space-y-4">
             <div>
-              <label className="label">Date</label>
+              <label className="label">Title</label>
               <input
-                type="date"
                 className="input"
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="What's on your mind?"
               />
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="label">Date</label>
+                <input
+                  type="date"
+                  className="input"
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="label">Mood</label>
+                <select
+                  className="input"
+                  value={form.mood}
+                  onChange={(e) => setForm({ ...form, mood: e.target.value })}
+                >
+                  {MOODS.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.emoji} {m.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div>
-              <label className="label">Mood</label>
-              <select
+              <label className="label">Content</label>
+              <textarea
                 className="input"
-                value={form.mood}
-                onChange={(e) => setForm({ ...form, mood: e.target.value })}
-              >
-                {MOODS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.emoji} {m.label}
-                  </option>
-                ))}
-              </select>
+                rows={8}
+                value={form.content}
+                onChange={(e) => setForm({ ...form, content: e.target.value })}
+                placeholder="Dear journal..."
+              />
             </div>
           </div>
-
-          <div>
-            <label className="label">Content</label>
-            <textarea
-              className="input"
-              rows={8}
-              value={form.content}
-              onChange={(e) => setForm({ ...form, content: e.target.value })}
-              placeholder="Dear journal..."
-            />
-          </div>
-        </div>
+        </BackgroundBox>
       </Modal>
 
+      {/* ─── VIEW MODAL ─── */}
       <Modal
         open={!!viewing}
         onClose={() => setViewing(null)}
@@ -305,7 +327,7 @@ export default function Journal() {
         }
       >
         {viewing && (
-          <div>
+          <BackgroundBox pageStyle={pageStyle} hasBg={hasBg} className="p-5">
             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-ink-400">
               <span className="text-2xl">
                 {MOODS.find((m) => m.id === viewing.mood)?.emoji}
@@ -319,10 +341,11 @@ export default function Journal() {
             <p className="mt-4 whitespace-pre-wrap text-slate-700 dark:text-ink-200">
               {viewing.content}
             </p>
-          </div>
+          </BackgroundBox>
         )}
       </Modal>
 
+      {/* ─── BACKGROUND PICKER ─── */}
       <Modal
         open={showBgPicker}
         onClose={() => setShowBgPicker(false)}
@@ -334,8 +357,8 @@ export default function Journal() {
         }
       >
         <p className="mb-4 text-sm text-slate-500 dark:text-ink-400">
-          Pick a gradient or upload your own image. The background applies to all
-          journal cards.
+          Pick a gradient or upload your own image. It applies to your journal
+          cards and to the write, edit, and read windows.
         </p>
 
         <div className="grid grid-cols-3 gap-3">
