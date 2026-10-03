@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useTheme } from '../context/ThemeContext.jsx';
+import ThemeSwitch from '../components/ThemeSwitch.jsx';
 
 export default function Login() {
   const { login } = useAuth();
@@ -10,6 +11,8 @@ export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
+  const isDark = theme === 'dark';
 
   const submit = async (e) => {
     e.preventDefault();
@@ -27,38 +30,54 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="hidden flex-1 flex-col justify-between bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 p-12 text-white lg:flex">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-lg font-bold backdrop-blur">
-              Y
-            </div>
-            <span className="text-lg font-bold">YegnaFuture</span>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className="rounded-xl border border-white/20 bg-white/10 p-2 text-lg backdrop-blur transition hover:bg-white/20"
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
+      {/* ─── LEFT BRAND PANEL (desktop only) ─── */}
+      <div
+        className={`relative hidden flex-1 flex-col justify-between overflow-hidden p-12 lg:flex ${
+          isDark ? 'bg-ink-950' : 'bg-white'
+        }`}
+      >
+        {/* Playful animated background blobs */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-20 -top-20 h-72 w-72 animate-blob rounded-full bg-blue-400/40 blur-3xl dark:bg-blue-500/30" />
+          <div className="animation-delay-2000 absolute right-0 top-1/3 h-80 w-80 animate-blob rounded-full bg-purple-400/40 blur-3xl dark:bg-purple-500/30" />
+          <div className="animation-delay-4000 absolute bottom-0 left-1/4 h-72 w-72 animate-blob rounded-full bg-amber-300/40 blur-3xl dark:bg-amber-500/20" />
+          <div className="animation-delay-6000 absolute -right-20 bottom-1/4 h-64 w-64 animate-blob rounded-full bg-emerald-300/40 blur-3xl dark:bg-emerald-500/20" />
         </div>
 
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-medium backdrop-blur">
+        {/* Top: logo + theme switch */}
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src="/yegnafuture-logo.png"
+              alt="YegnaFuture"
+              className="h-16 w-16 rounded-2xl object-contain"
+            />
+            <span className="text-xl font-bold text-slate-800 dark:text-ink-50">
+              YegnaFuture
+            </span>
+          </div>
+          <ThemeSwitch theme={theme} onToggle={toggleTheme} />
+        </div>
+
+        {/* Middle: hero content */}
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
             🇪🇹 Built for the Ethiopian Curriculum
           </div>
-          <h1 className="mt-4 text-4xl font-bold leading-tight">
+
+          <h1 className="mt-4 text-4xl font-bold leading-tight text-slate-900 dark:text-ink-50">
             Your journey.
             <br />
             Your future.
           </h1>
-          <p className="mt-4 max-w-md text-white/85">
+
+          <p className="mt-4 max-w-md text-slate-600 dark:text-ink-300">
             The learning platform for Ethiopian Grade 9–12 students. Discover your
             field, follow a personalized path to university, and study the national
             curriculum with AI support.
           </p>
 
-          <div className="mt-8 grid grid-cols-3 gap-4 text-sm">
+          <div className="mt-8 grid grid-cols-3 gap-4 text-sm text-slate-600 dark:text-ink-300">
             <div>
               <div className="text-2xl font-bold">📚</div>
               National Curriculum
@@ -74,28 +93,27 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="text-xs text-white/60">
+        {/* Bottom: copyright */}
+        <p className="relative z-10 text-xs text-slate-400 dark:text-ink-500">
           © {new Date().getFullYear()} YegnaFuture · Made for Ethiopian students
         </p>
       </div>
 
-      <div className="flex flex-1 items-center justify-center bg-slate-50 p-6 dark:bg-ink-950">
+      {/* ─── RIGHT FORM PANEL ─── */}
+      <div
+        className={`flex flex-1 items-center justify-center p-6 ${
+          isDark ? 'bg-ink-950' : 'bg-slate-50'
+        }`}
+      >
         <div className="w-full max-w-sm">
+          {/* Mobile header (logo + switch) */}
           <div className="mb-8 flex items-center justify-between lg:hidden">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 font-bold text-white">
-                Y
-              </div>
-              <span className="text-lg font-bold text-slate-800 dark:text-ink-50">
-                YegnaFuture
-              </span>
-            </div>
-            <button
-              onClick={toggleTheme}
-              className="rounded-xl border border-slate-200 bg-white p-2 dark:border-ink-700 dark:bg-ink-800"
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
+            <img
+              src="/yegnafuture-logo.png"
+              alt="YegnaFuture"
+              className="h-16 w-16 object-contain"
+            />
+            <ThemeSwitch theme={theme} onToggle={toggleTheme} />
           </div>
 
           <h2 className="text-2xl font-bold text-slate-800 dark:text-ink-50">
