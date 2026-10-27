@@ -270,7 +270,8 @@ Through this project, I aim to explore how technology can address educational ch
 
 ## Project Links
 
-- **Live Website:** https://edentadesse-del.github.io/yegna/
+- **Live Website:** https://edentadesse-del.github.io/yegnafuture/
+)
 - **GitHub Repository:** https://github.com/EdenTadesse-del/yegnafuture
 ## Project Demonstration Video
 
