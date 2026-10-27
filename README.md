@@ -272,11 +272,8 @@ Through this project, I aim to explore how technology can address educational ch
 
 - **Live Website:** https://edentadesse-del.github.io/yegna/
 - **GitHub Repository:** https://github.com/EdenTadesse-del/yegnafuture
-
----
 ## Project Demonstration Video
 
-A video demonstration of YegnaFuture has been prepared and uploaded through the INSA project submission portal. The video presents the website and demonstrates its main features, purpose, and ongoing development.
-
+A video demonstration of YegnaFuture is available in the project's `public` folder. It showcases the website's purpose, main features, user interface, and ongoing development as part of the INSA project submission.
 The demonstration provides an overview of the platform, including career exploration, subject-based learning, student productivity tools, and the planned AI Tutor and Digital Library features.
 **YegnaFuture — Learn Today, Shape Tomorrow.**
