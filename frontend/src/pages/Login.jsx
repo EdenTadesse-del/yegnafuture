@@ -79,15 +79,15 @@ export default function Login() {
 
           <div className="mt-8 grid grid-cols-3 gap-4 text-sm text-slate-600 dark:text-ink-300">
             <div>
-              <div className="text-2xl font-bold">📚</div>
+              <div className="text-2xl font-bold"></div>
               National Curriculum
             </div>
             <div>
-              <div className="text-2xl font-bold">🧭</div>
+              <div className="text-2xl font-bold"></div>
               Natural & Social Streams
             </div>
             <div>
-              <div className="text-2xl font-bold">🎓</div>
+              <div className="text-2xl font-bold"></div>
               University Roadmap
             </div>
           </div>
