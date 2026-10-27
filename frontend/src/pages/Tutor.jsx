@@ -43,7 +43,7 @@ export default function Tutor() {
   return (
     <div className="flex h-[calc(100vh-8rem)] flex-col card animate-in">
       <div className="border-b border-slate-100 px-5 py-3">
-        <h1 className="font-bold text-slate-800">AI Tutor 🤖</h1>
+        <h1 className="font-bold text-slate-800">AI Tutor </h1>
         <p className="text-xs text-slate-400">
           Ask anything about your subjects and lessons.
         </p>
@@ -52,7 +52,7 @@ export default function Tutor() {
       <div className="flex-1 space-y-4 overflow-y-auto p-5">
         {messages.length === 0 && (
           <div className="flex h-full flex-col items-center justify-center text-center">
-            <div className="text-4xl">🤖</div>
+            <div className="text-4xl"></div>
             <p className="mt-3 font-semibold text-slate-700">
               Hi! I'm your AI Tutor.
             </p>
